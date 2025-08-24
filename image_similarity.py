@@ -14,11 +14,8 @@ def find_similar_images(query_image_path, image_features, color_weight, sift_wei
     
     # Vectorized distance calculation (much faster than loops)
     distances = np.linalg.norm(feature_vectors - query_vector, axis=1)
-    
-    # Get indices of top k similar images
+
     top_indices = np.argsort(distances)[:top_k]
-    
-    # Return top k similar images
     similar_images = [image_names[i] for i in top_indices]
     
     return [f"/static/cloth/{image}" for image in similar_images]

@@ -11,7 +11,6 @@ from datetime import datetime
 import hashlib
 
 app = Flask(__name__)
-# app.config['UPLOAD_FOLDER'] = 'C:\\Users\\shreya\\Desktop\\fcv\\static\\uploads'
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['CAPTURES_FOLDER'] = os.path.join('static', 'captures')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -20,9 +19,9 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['CAPTURES_FOLDER'], exist_ok=True)
 image_features = load_features()
 
-# In-memory cache for query results
+# In memory cache for query results
 query_cache = {}
-CACHE_SIZE_LIMIT = 200  # Maximum number of cached results
+CACHE_SIZE_LIMIT = 200 
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -87,8 +86,6 @@ def results():
 
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
-
-# Global variable for the selected clothing image
 selected_clothing = None
 
 def remove_background(image_path):
@@ -161,52 +158,6 @@ def video_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/capture_photo', methods=['POST'])
-def capture_photo():
-    try:
-        # Get current timestamp for unique filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"capture_{timestamp}.jpg"
-        file_path = os.path.join(app.config['CAPTURES_FOLDER'], filename)
-        
-        # Capture current frame from webcam
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            return jsonify({'success': False, 'error': 'Could not access webcam'})
-        
-        # Capture a single frame
-        ret, frame = cap.read()
-        cap.release()
-        
-        if not ret:
-            return jsonify({'success': False, 'error': 'Could not capture frame'})
-        
-        # Apply virtual try-on if clothing is selected
-        if selected_clothing is not None:
-            try:
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                result = pose.process(frame_rgb)
-                
-                if result.pose_landmarks:
-                    frame = overlay_clothing(selected_clothing, frame, result.pose_landmarks.landmark)
-            except Exception as e:
-                print(f"Error applying virtual try-on: {str(e)}")
-                # Continue without try-on if there's an error
-        
-        # Save the captured frame
-        success = cv2.imwrite(file_path, frame)
-        
-        if success:
-            return jsonify({
-                'success': True, 
-                'image_path': filename,
-                'message': 'Photo captured successfully'
-            })
-        else:
-            return jsonify({'success': False, 'error': 'Could not save image'})
-            
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
