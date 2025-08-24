@@ -130,7 +130,7 @@ def load_features_from_disk(path="features.pkl"):
         return None
 
 def load_features():
-    image_folder = 'C:\\Users\\shreya\\Desktop\\fcv\\dataset\\cloth'
+    image_folder = 'dataset\cloth'
     feature_file = 'features.pkl' 
     
     image_features = load_features_from_disk(feature_file)

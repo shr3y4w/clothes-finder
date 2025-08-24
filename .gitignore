@@ -43,8 +43,8 @@ instance/
 # Large data files
 # features.pkl
 *.pkl
-dataset/
-# static/cloth/
+# dataset/
+static/cloth/
 # static/uploads/
 
 # Cache directory
