@@ -78,7 +78,9 @@ A Flask-based web application that uses  computer vision to find similar clothin
    ```bash
    python app.py
    ```
-
+![Home page](image-1.png)
+![Results page](image-2.png)
+![Try on page](image.png)
 
 ## Configuration
 
