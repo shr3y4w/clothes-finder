@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Similarity Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Notification Styles */
+        .notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%) scale(0);
+            background-color: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 1000;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification">Image name copied to clipboard!</div>
+
+    <div class="container">
+        <h1>Similar Images Found</h1>
+        
+        <div class="uploaded-image">
+            <h2>Uploaded Image</h2>
+            <img src="{{ url_for('static', filename='uploads/' + query_image) }}" alt="Uploaded Image" onclick="copyImageName('{{ query_image }}');">
+        </div>
+        
+        <!-- In your results.html, modify the image display section -->
+<div class="similar-images">
+    {% for image in similar_images %}
+    <div class="image-container">
+        <a href="{{ url_for('try_on', image_name=image.split('/')[-1]) }}">
+            <img src="{{ image }}" alt="Similar image">
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+    <script>
+        // Function to copy only the image NAME of the query image to clipboard
+        function copyImageName(imageUrl) {
+            // Extract only the filename
+            const imageName = imageUrl.split('/').pop();
+
+            // Copy the image name to clipboard
+            navigator.clipboard.writeText(imageName)
+                .then(() => {
+                    // Update the displayed path with image name
+                    var imagePathElement = document.getElementById('selected-image-path');
+                    imagePathElement.textContent = imageName;
+                    
+                    // Show the notification
+                    showNotification('Image name copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        }
+
+        // Function to copy the full image path for similar images
+        function copyImagePath(imageUrl) {
+            navigator.clipboard.writeText(imageUrl)
+                .then(() => {
+                    var imagePathElement = document.getElementById('selected-image-path');
+                    imagePathElement.textContent = imageUrl;
+                    
+                    // Show the notification
+                    showNotification('Image path copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        }
+
+        // Function to show the notification with custom message
+        function showNotification(message) {
+            var notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            notification.style.transform = 'translateX(-50%) translateY(0) scale(1)';
+            notification.style.opacity = 1;
+            
+            setTimeout(() => {
+                notification.style.opacity = 0;
+                notification.style.transform = 'translateX(-50%) translateY(-100%) scale(0)';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 300);
+            }, 300);
+        }
+    </script>
+</body>
+</html>

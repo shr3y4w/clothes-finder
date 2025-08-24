@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clothes Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-tshirt"></i> Clothes Finder</h1>
+            <h3>Discover similar items and try them on!</h3>
+        </div>
+
+        <form action="/results" method="post" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+            <div class="file-input-wrapper">
+                <input type="file" name="file" accept="image/*" required class="file-input" id="fileInput">
+                <div class="drag-drop-area" id="dragDropArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                    <h5>Upload your image</h5>
+                    <span class="file-info" id="fileInfo"></span>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                <i class="fas fa-search"></i>
+                Find Similar Items
+            </button>
+        </form>
+
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h4>Search</h4>
+                <p>Find similar tops</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-camera"></i>
+                <h4>Virtual Try-On</h4>
+                <p>See how they look on you</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const dragDropArea = document.getElementById('dragDropArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const notification = document.getElementById('notification');
+
+        // Drag and drop functionality
+        dragDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.add('dragover');
+        });
+
+        dragDropArea.addEventListener('dragleave', () => {
+            dragDropArea.classList.remove('dragover');
+        });
+
+        dragDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        // Handle file selection
+        function handleFileSelect(file) {
+            if (file.type.startsWith('image/')) {
+                fileInfo.textContent = `Selected: ${file.name}`;
+                submitBtn.disabled = false;
+                showNotification('File selected successfully!', 'success');
+            } else {
+                fileInfo.textContent = 'Please select an image file';
+                submitBtn.disabled = true;
+                showNotification('Please select a valid image file', 'error');
+            }
+        }
+
+        // Form submission with loading state
+        uploadForm.addEventListener('submit', (e) => {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+            showNotification('Processing your image...', 'success');
+        });
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Click to upload
+        dragDropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+    </script>
+
+    <style>
+        .drag-drop-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .drag-drop-area:hover,
+        .drag-drop-area.dragover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .drag-drop-area i {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .drag-drop-area h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .drag-drop-area p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .file-info {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            min-height: 200px;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .dashboard-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+    </style>
+</body>
+</html>
