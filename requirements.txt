@@ -1,3 +1,6 @@
+setuptools>=65.0.0
+wheel
+opencv-python-headless
 Flask==3.0.0
 opencv-python==4.11.0.86
 opencv-contrib-python==4.11.0.86
